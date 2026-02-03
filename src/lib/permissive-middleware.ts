@@ -18,7 +18,7 @@ export function withPermissiveX402(
     server: x402ResourceServer
 ) {
     console.log("CoreMiddleware: Initializing with server:", !!server, typeof server);
-    if (server) console.log("CoreMiddleware: Server schemes:", server.registeredServerSchemes);
+    if (server) console.log("CoreMiddleware: Server initialized");
 
     let protectedHandler;
     try {

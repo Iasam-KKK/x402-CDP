@@ -25,7 +25,6 @@ import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { toClientEvmSigner } from "@x402/evm";
 
 
-// Load environment variables
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 // USDC contract address on Base Sepolia
@@ -77,17 +76,15 @@ async function testFullPayment() {
         });
         console.log(`USDC Balance (before): ${Number(balanceBefore) / 1e6} USDC`);
 
-        if (balanceBefore === 0n) {
+        if (balanceBefore === BigInt(0)) {
             console.error("\nNo USDC in wallet.");
             process.exit(1);
         }
 
-        // Create x402 client
         const signer = toClientEvmSigner(account);
         const client = new x402Client();
         registerExactEvmScheme(client, { signer });
 
-        // Create x402-wrapped fetch
         console.log("\nMaking paid API request with x402...");
         const x402Fetch = wrapFetchWithPayment(fetch, client);
 
@@ -115,7 +112,6 @@ async function testFullPayment() {
             console.error("\nFetch error:", e);
         }
 
-        // Check buyer's USDC balance after (give it a moment)
         await new Promise(r => setTimeout(r, 2000));
 
         const balanceAfter = await publicClient.readContract({
@@ -129,7 +125,7 @@ async function testFullPayment() {
         const spent = Number(balanceBefore - balanceAfter) / 1e6;
         console.log(`Debug: Before=${Number(balanceBefore) / 1e6}, After=${Number(balanceAfter) / 1e6}, Spent=${spent}`);
 
-        if (spent > 0.0009) { // Allow for small floating point differences, expect ~0.001
+        if (spent > 0.0009) {
             console.log(`USDC Spent: ${spent.toFixed(6)} USDC`);
             console.log("\nSUCCESS: Payment processed on-chain!");
         } else {
