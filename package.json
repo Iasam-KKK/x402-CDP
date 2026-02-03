@@ -1,0 +1,35 @@
+{
+  "name": "x402-marketplace-cdp",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "wallet:setup": "npx tsx scripts/wallet-setup.ts"
+  },
+  "dependencies": {
+    "@coinbase/cdp-sdk": "^1.44.0",
+    "@coinbase/x402": "^2.1.0",
+    "@x402/core": "^2.2.0",
+    "@x402/evm": "^2.2.0",
+    "@x402/extensions": "^2.2.0",
+    "@x402/fetch": "^2.2.0",
+    "@x402/next": "^2.2.0",
+    "autoprefixer": "^10.4.21",
+    "dotenv": "^16.4.7",
+    "next": "^16.0.10",
+    "postcss": "^8.5.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^3.4.0",
+    "viem": "^2.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "@types/react": "^19.0.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

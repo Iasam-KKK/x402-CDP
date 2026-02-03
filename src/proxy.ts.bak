@@ -1,0 +1,118 @@
+import { paymentProxy } from "@x402/next";
+import { x402ResourceServer, HTTPFacilitatorClient } from "@x402/core/server";
+import { ExactEvmScheme } from "@x402/evm/exact/server";
+import { declareDiscoveryExtension, bazaarResourceServerExtension } from "@x402/extensions/bazaar";
+
+// CDP Facilitator URL for payment verification and settlement
+const facilitatorUrl = process.env.X402_FACILITATOR_URL || "https://facilitator.x402.org";
+
+// Server wallet address for receiving payments
+const payToAddress = process.env.SERVER_WALLET_ADDRESS || "0x0000000000000000000000000000000000000000";
+
+// Network configuration
+// Base Sepolia = eip155:84532
+// Base Mainnet = eip155:8453
+const network = process.env.X402_NETWORK === "base" ? "eip155:8453" : "eip155:84532";
+
+// Initialize the facilitator client
+const facilitatorClient = new HTTPFacilitatorClient({ url: facilitatorUrl });
+
+// Create the resource server with EVM scheme support and Bazaar extension
+const resourceServer = new x402ResourceServer(facilitatorClient)
+    .register(network, new ExactEvmScheme())
+    .registerExtension(bazaarResourceServerExtension);
+
+// Export the payment proxy middleware
+export const proxy = paymentProxy(
+    {
+        // Weather API - $0.001 per request
+        "GET /api/weather": {
+            accepts: {
+                scheme: "exact",
+                price: "$0.001",
+                network: network,
+                payTo: payToAddress,
+            },
+            description: "Get real-time weather data for any city worldwide",
+            mimeType: "application/json",
+            extensions: {
+                ...declareDiscoveryExtension({
+                    input: { city: "London" },
+                    inputSchema: {
+                        properties: {
+                            city: {
+                                type: "string",
+                                description: "City name to get weather for"
+                            },
+                        },
+                        required: ["city"],
+                    },
+                    output: {
+                        example: {
+                            success: true,
+                            data: {
+                                city: "London",
+                                country: "GB",
+                                temperature: { current: 15, feels_like: 14, unit: "Celsius" },
+                                weather: { main: "Clouds", description: "overcast clouds" },
+                                humidity: 75,
+                                wind: { speed: 4.5, unit: "m/s" },
+                            },
+                        },
+                    },
+                }),
+            },
+        },
+
+        // Exchange Rate API - $0.001 per request
+        "GET /api/exchange": {
+            accepts: {
+                scheme: "exact",
+                price: "$0.001",
+                network: network,
+                payTo: payToAddress,
+            },
+            description: "Get current exchange rates between 150+ currencies",
+            mimeType: "application/json",
+            extensions: {
+                ...declareDiscoveryExtension({
+                    input: { from: "USD", to: "EUR", amount: "100" },
+                    inputSchema: {
+                        properties: {
+                            from: {
+                                type: "string",
+                                description: "Source currency code (e.g., USD, EUR, GBP)"
+                            },
+                            to: {
+                                type: "string",
+                                description: "Target currency code (e.g., USD, EUR, GBP)"
+                            },
+                            amount: {
+                                type: "string",
+                                description: "Amount to convert"
+                            },
+                        },
+                        required: ["from", "to"],
+                    },
+                    output: {
+                        example: {
+                            success: true,
+                            data: {
+                                from: { currency: "USD", amount: 100 },
+                                to: { currency: "EUR", amount: 92.5 },
+                                rate: 0.925,
+                                lastUpdated: "2025-01-01T00:00:00Z",
+                            },
+                        },
+                    },
+                }),
+            },
+        },
+    },
+    resourceServer,
+);
+
+// Configure which paths the middleware should run on
+export const config = {
+    matcher: ["/api/:path*"],
+};
