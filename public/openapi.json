@@ -1,0 +1,186 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "x402 Marketplace API",
+        "description": "Premium pay-per-use APIs powered by x402 on Base Sepolia. Access real-time weather data and exchange rates.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://x402-cdp-production.up.railway.app",
+            "description": "Production Server"
+        },
+        {
+            "url": "http://localhost:3000",
+            "description": "Local Development"
+        }
+    ],
+    "paths": {
+        "/api/weather": {
+            "get": {
+                "operationId": "getWeather",
+                "summary": "Get Weather Data",
+                "description": "Retrieve current weather information for a specific city. Requires x402 payment.",
+                "parameters": [
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "Name of the city (e.g., 'London', 'Paris')",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "London"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "city": {
+                                                    "type": "string"
+                                                },
+                                                "temperature": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "current": {
+                                                            "type": "number"
+                                                        },
+                                                        "unit": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "weather": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "main": {
+                                                            "type": "string"
+                                                        },
+                                                        "description": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pricePerRequest": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required. Returns x402 payment request headers and details."
+                    }
+                }
+            }
+        },
+        "/api/exchange": {
+            "get": {
+                "operationId": "getExchangeRate",
+                "summary": "Get Exchange Rate",
+                "description": "Retrieve the current exchange rate between two currencies. Requires x402 payment.",
+                "parameters": [
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "Source currency code (e.g., 'USD')",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "USD"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "description": "Target currency code (e.g., 'EUR')",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "EUR"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "description": "Amount to convert",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "from": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "currency": {
+                                                            "type": "string"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    }
+                                                },
+                                                "to": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "currency": {
+                                                            "type": "string"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    }
+                                                },
+                                                "rate": {
+                                                    "type": "number"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required"
+                    }
+                }
+            }
+        }
+    }
+}
