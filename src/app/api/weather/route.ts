@@ -107,7 +107,8 @@ async function weatherHandler(request: NextRequest) {
     }
 }
 
-// Export the route handler wrapped with x402 payment protection (permissive for testnet)
+import { declareDiscoveryExtension } from "@x402/extensions/bazaar";
+
 export const GET = withPermissiveX402(
     weatherHandler as any,
     {
@@ -119,6 +120,24 @@ export const GET = withPermissiveX402(
         },
         description: "Get real-time weather data for any city worldwide",
         mimeType: "application/json",
-    },
+        // Add name and tags for catalog discovery (may require casting if type definition is strict)
+        name: "Weather API",
+        tags: ["weather", "data", "utility"],
+
+        // Use the discovery extension for input schema
+        extensions: {
+            ...declareDiscoveryExtension({
+                // Document the query parameters
+                input: {
+                    city: "London"
+                },
+                inputSchema: {
+                    properties: {
+                        city: { type: "string", description: "City name" }
+                    }
+                }
+            })
+        }
+    } as any,
     resourceServer
 );

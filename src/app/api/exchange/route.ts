@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withPermissiveX402 } from "@/lib/permissive-middleware";
 import { resourceServer, network, payToAddress } from "@/lib/x402-server";
+import { declareDiscoveryExtension } from "@x402/extensions/bazaar";
 
 // The actual exchange rate API handler
 async function exchangeHandler(request: NextRequest) {
@@ -99,6 +100,19 @@ export const GET = withPermissiveX402(
         },
         description: "Get current exchange rates between 150+ currencies",
         mimeType: "application/json",
+        extensions: {
+            ...declareDiscoveryExtension({
+                // Document the query parameters
+                input: {
+                    city: "London"
+                },
+                inputSchema: {
+                    properties: {
+                        city: { type: "string", description: "City name" }
+                    }
+                }
+            })
+        }
     },
     resourceServer
 );

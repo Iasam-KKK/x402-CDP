@@ -40,7 +40,7 @@ const USDC_ABI = [
     },
 ] as const;
 
-const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:3000";
+const API_BASE_URL = process.env.API_BASE_URL || "https://x402-cdp-production.up.railway.app";
 
 async function testFullPayment() {
     console.log("\nx402 Full Payment Test");
